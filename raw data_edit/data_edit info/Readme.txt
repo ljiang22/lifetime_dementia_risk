@@ -1,0 +1,7 @@
+754	OAS30216_USDa1_d5627
+2535	OAS30490_ClinicalData_d0263  --- 263 --000   - has to edit
+OAS30756_ClinicalData_d1178     -- 756 - 757 000
+OAS30757_ClinicalData_d0000	OAS30757	63.17317	30	63.17317	0	0	0	0	0	0	0	1	0	0	0	20	1
+OAS30905_ClinicalData_d1547   - 1182
+
+
