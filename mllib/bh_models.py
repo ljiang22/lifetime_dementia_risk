@@ -166,11 +166,86 @@ class bh_model(model_base):
             plt.ylabel('Brain Health Score')
 
         plt.show()"""
-
-
         #print(type(out_put))
 
         return out_put, x_axis, score_age
+
+    def risk_bmi(self):
+        bmi = float(self.input_data['BMI'])
+        bmi_max = self.data_pars[3, -2]  # Make sure use the the right indices
+        bmi_std = self.data_pars[0, -2]
+        bmi_mean = self.data_pars[1, -2]
+        #st.write(bmi, bmi_max, bmi_mean)
+        if bmi >= 25.0:
+            bmi_tmp = 20.0
+            bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -2] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
+            #st.write(self.input_nor[0, -2])
+            out_put, x_axis, score_age = self.age_analysis()
+
+        score_age1 = []
+        for i in range(len(score_age)):
+            score_tmp = float(score_age[i])
+            # st.write(i, score_tmp)
+            score_age1.append(score_tmp)
+        score_age1 = np.asarray(score_age1)
+
+        return out_put, score_age1
+
+    def risk_edu(self):
+        bmi = float(self.input_data['Education'])
+        bmi_max = self.data_pars[3, -4]  # Make sure use the the right indices
+        bmi_std = self.data_pars[0, -4]
+        bmi_mean = self.data_pars[1, -4]
+        #st.write(bmi, bmi_max, bmi_mean)
+        if bmi <= 15.0:
+            bmi_tmp = 20.0
+            bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -4] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
+            #st.write(self.input_nor[0, -2])
+            out_put, x_axis, score_age = self.age_analysis()
+
+        score_age1 = []
+        for i in range(len(score_age)):
+            score_tmp = float(score_age[i])
+            # st.write(i, score_tmp)
+            score_age1.append(score_tmp)
+        score_age1 = np.asarray(score_age1)
+
+        return out_put, score_age1
+
+
+    def risk_gds(self):
+        bmi = float(self.input_data['GDS'])
+        bmi_max = self.data_pars[3, -5]  # Make sure use the the right indices
+        bmi_std = self.data_pars[0, -5]
+        bmi_mean = self.data_pars[1, -5]
+        #st.write(bmi, bmi_max, bmi_mean)
+        if bmi <= 7.0:
+            bmi_tmp = 13.0
+            bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -5] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
+            #st.write(self.input_nor[0, -2])
+            out_put, x_axis, score_age = self.age_analysis()
+
+        score_age1 = []
+        for i in range(len(score_age)):
+            score_tmp = float(score_age[i])
+            # st.write(i, score_tmp)
+            score_age1.append(score_tmp)
+        score_age1 = np.asarray(score_age1)
+
+        return out_put, score_age1
+
+
+
+
+
+
+
 
 
 

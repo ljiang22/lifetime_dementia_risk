@@ -137,15 +137,41 @@ def users_app():
 
     st.sidebar.markdown("# Input your personal infos")
     #Age = st.sidebar.slider("What is your age?", 30, 111, 60) label="What is your age?",  min_value=30.0, step=1
-    age = st.sidebar.number_input(label="What is your age? (30 - 110)", min_value=30, max_value=110, value=70, step=1, format='%d')
+    age = st.sidebar.number_input(label="What is your age? (30 - 110)", min_value=30, max_value=110, value=50, step=1, format='%d')
+
+    height = st.sidebar.number_input(label="What is your height (inch)", min_value=20.0, max_value=120.0, value=60.0,
+                                  step=1.0, format='%f')
+
+    weight = st.sidebar.number_input(label="What is your weight (pounds)", min_value=50.0, max_value=350.0, value=160.0,
+                                  step=1.0, format='%f')
+    BMI = weight * 0.453592 / (height * 0.0254) ** 2.0  # w / h2, unit: (kg/m2)
+
+    edu = st.sidebar.number_input(label="What is your education? High school/GED = 12, Bachelors degree = 16, Master’s degree = 18, Doctorate = 20",
+                            min_value=7, max_value=29, value=15, step=1, format='%d')
+
+    SMOKYRS = st.sidebar.number_input(label="Total years smoked?", min_value=0.0, max_value=100.0, value=0.0,
+                            step=1.0, format='%f')
+
+    GDS = st.sidebar.number_input(label="What is your GDS score? (0-15) (Behavioral Assessment)", min_value=0.0, max_value=15.0, value=7.0,
+                                  step=1.0, format='%f')
+
+    HYPERTEN = st.sidebar.selectbox("Hypertension?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'])
+    if HYPERTEN == 'Absent':
+        HYPERTEN = 0.0
+    elif HYPERTEN == 'Remote/Inactive':
+        HYPERTEN = 1.0
+    elif HYPERTEN == 'Recent/Active':
+        HYPERTEN = 2.0
+    else:
+        HYPERTEN = 0.0
+
+
     gender = st.sidebar.selectbox("What is your gender? ", ['Male', 'Female'])
     if gender == 'Male':
         gender = 1.0
     else:
         gender = 0.0
 
-    edu = st.sidebar.number_input(label="What is your education? High school/GED = 12, Bachelors degree = 16, Master’s degree = 18, Doctorate = 20",
-                            min_value=7, max_value=29, value=15, step=1, format='%d')
     hand = st.sidebar.selectbox("What is your handedness? ", ['Left', 'Right', 'Ambidextrous'])
     if hand == 'Right':
         hand = 2.0
@@ -169,13 +195,6 @@ def users_app():
         maris = 5.0
     else:
         maris = 2.0  # Treat 'others' as a medium value for this variable. May need more consideration
-
-    height = st.sidebar.number_input(label="What is your height (inch)", min_value=20.0, max_value=120.0, value=60.0,
-                                  step=1.0, format='%f')
-
-    weight = st.sidebar.number_input(label="What is your weight (pounds)", min_value=50.0, max_value=350.0, value=160.0,
-                                  step=1.0, format='%f')
-    BMI = weight * 0.453592 / (height * 0.0254) ** 2.0  # w / h2, unit: (kg/m2)
 
     livsit = st.sidebar.selectbox("What is your living sitution? ",
                                  ['Lives with spouse or partner', 'Lives with relative or friend', 'Lives with group', 'Lives alone', 'Other'])
@@ -232,8 +251,6 @@ def users_app():
     else:
         gene = 1.0
 
-    GDS = st.sidebar.number_input(label="What is your GDS score? (0-15) (Behavioral Assessment)", min_value=0.0, max_value=15.0, value=7.0,
-                                  step=1.0, format='%f')
     CVHATT = st.sidebar.selectbox("Heart attack/cardiac arrest?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'])
     if CVHATT == 'Absent':
         CVHATT = 0.0
@@ -406,16 +423,6 @@ def users_app():
     else:
         NCOTHR = 0.0
 
-    HYPERTEN = st.sidebar.selectbox("Hypertension?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'])
-    if HYPERTEN == 'Absent':
-        HYPERTEN = 0.0
-    elif HYPERTEN == 'Remote/Inactive':
-        HYPERTEN = 1.0
-    elif HYPERTEN == 'Recent/Active':
-        HYPERTEN = 2.0
-    else:
-        HYPERTEN = 0.0
-
     HYPERCHO = st.sidebar.selectbox("Hypercholesterolemia?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'])
     if HYPERCHO == 'Absent':
         HYPERCHO = 0.0
@@ -518,8 +525,6 @@ def users_app():
     else:
         TOBAC100 = 1.0
 
-    SMOKYRS = st.sidebar.number_input(label="Total years smoked?", min_value=0.0, max_value=100.0, value=0.0,
-                            step=1.0, format='%f')
 
     PACKSPER = st.sidebar.number_input(label="Average number of packs/day smoked?", min_value=0.0, max_value=5.0, value=0.0,
                             step=0.5, format='%f')
@@ -611,24 +616,55 @@ def users_app():
     #st.write(score_age1)
     #st.write('The age analysis:', age_axis, score_age)
 
+    # BMI
+    output_bmi, score_bmi = model.risk_bmi()
+    output_edu, score_edu = model.risk_edu()
+    output_gds, score_gds = model.risk_gds()
+
     #with st.echo(code_location='below'):  # Put the code below the plot if necessary
     import matplotlib.pyplot as plt
     font = {'family': 'normal', 'size': 14}
     plt.rc('font', **font)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(age_axis, score_age1)
+    ax.plot(age_axis, score_age1, color='black')
     ax.locator_params(axis='x', nbins=9)
     ax.set_xlabel("Age")
     ax.set_ylabel("Brain health score")
 
     st.write(fig)
-
     if type(age_out) == str:
         st.write(age_out)
     else:
         st.write(age_out[0], ('%3.0f') %age_out[1])
 
+    fig1 = plt.figure()
+    ax = fig1.add_subplot(1, 1, 1)
+    ax.plot(age_axis, score_age1, color='black', label='Original')
+    ax.plot(age_axis, score_bmi, color='r', label='Weight')
+    ax.legend()
+    ax.locator_params(axis='x', nbins=9)
+    ax.set_xlabel("Age")
+    ax.set_ylabel("Brain health score")
+
+    st.write(fig1)
+
+    if type(output_bmi) != str:
+        st.write('If you lose weight, you will have a lower potential dementia risk at age:', ('%3.0f') %output_bmi[1])
+
+    fig2 = plt.figure()
+    ax = fig2.add_subplot(1, 1, 1)
+    ax.plot(age_axis, score_age1, color='black', label='Original')
+    ax.plot(age_axis, score_edu, color='r', label='Education')
+    ax.legend()
+    ax.locator_params(axis='x', nbins=9)
+    ax.set_xlabel("Age")
+    ax.set_ylabel("Brain health score")
+
+    st.write(fig2)
+
+    if type(output_edu) != str:
+        st.write('If you have more exercise on your brain, you will have a lower potential dementia risk at age:', ('%3.0f') %output_edu[1])
 
 
 if __name__ == "__main__":
