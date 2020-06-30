@@ -5,14 +5,19 @@ from mllib.bh_models import bh_model
 
 
 def main():
-    st.title('Evaluation Model for Brain Health')
+    st.title('Lifetime Dementia Risk Predictor')
+    st.write('(Tracking and preventing dementia before it gets too late!)')
+    st.write('Dementia is a broad category of brain diseases that cause a long-term and often gradual decrease in the '
+             'ability to think and remember that is severe enough to affect daily functioning. Other common symptoms include '
+             'emotional problems, difficulties with language, and a decrease in motivation.'
+             ' Consciousness is usually not affected. A diagnosis of dementia requires a change from a persons usual mental functioning and '
+             'a greater decline than one would expect due to aging. (Wikipedia)')
+
     st.sidebar.title("User type")
     app_mode = st.sidebar.selectbox("Choose the user type",
-        ["Common users", "Doctors", 'Use preexisting samples'])
+        ["Common users", 'Use preexisting samples'])
 
-    if app_mode == "Doctors":
-        doc_app()
-    elif app_mode == 'Use preexisting samples':
+    if app_mode == 'Use preexisting samples':
         sample_app()
     else:
         users_app()
@@ -139,23 +144,20 @@ def users_app():
     #Age = st.sidebar.slider("What is your age?", 30, 111, 60) label="What is your age?",  min_value=30.0, step=1
     age = st.sidebar.number_input(label="What is your age? (30 - 110)", min_value=30, max_value=110, value=50, step=1, format='%d')
 
-    height = st.sidebar.number_input(label="What is your height (inch)", min_value=20.0, max_value=120.0, value=60.0,
+    height = st.sidebar.number_input(label="What is your height (inch)", min_value=20.0, max_value=120.0, value=70.0,
                                   step=1.0, format='%f')
 
-    weight = st.sidebar.number_input(label="What is your weight (pounds)", min_value=50.0, max_value=350.0, value=160.0,
+    weight = st.sidebar.number_input(label="What is your weight (pounds)", min_value=50.0, max_value=350.0, value=250.0,
                                   step=1.0, format='%f')
     BMI = weight * 0.453592 / (height * 0.0254) ** 2.0  # w / h2, unit: (kg/m2)
 
-    edu = st.sidebar.number_input(label="What is your education? High school/GED = 12, Bachelors degree = 16, Master’s degree = 18, Doctorate = 20",
-                            min_value=7, max_value=29, value=15, step=1, format='%d')
-
-    SMOKYRS = st.sidebar.number_input(label="Total years smoked?", min_value=0.0, max_value=100.0, value=0.0,
+    SMOKYRS = st.sidebar.number_input(label="Total years smoked?", min_value=0.0, max_value=100.0, value=30.0,
                             step=1.0, format='%f')
 
-    GDS = st.sidebar.number_input(label="What is your GDS score? (0-15) (Behavioral Assessment)", min_value=0.0, max_value=15.0, value=7.0,
+    GDS = st.sidebar.number_input(label="What is your GDS score? (0-15) (Behavioral Assessment)", min_value=0.0, max_value=15.0, value=2.0,
                                   step=1.0, format='%f')
 
-    HYPERTEN = st.sidebar.selectbox("Hypertension?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'])
+    HYPERTEN = st.sidebar.selectbox("Hypertension?", ['Absent', 'Remote/Inactive','Recent/Active', 'Unknown'], index=0)
     if HYPERTEN == 'Absent':
         HYPERTEN = 0.0
     elif HYPERTEN == 'Remote/Inactive':
@@ -165,6 +167,9 @@ def users_app():
     else:
         HYPERTEN = 0.0
 
+
+    edu = st.sidebar.number_input(label="What is your education? High school/GED = 12, Bachelors degree = 16, Master’s degree = 18, Doctorate = 20",
+                            min_value=7, max_value=29, value=15, step=1, format='%d')
 
     gender = st.sidebar.selectbox("What is your gender? ", ['Male', 'Female'])
     if gender == 'Male':
@@ -221,7 +226,7 @@ def users_app():
     elif independ == 'Completely dependent':
         independ = 3.0
     else:
-        independ = 4.0
+        independ = 0.0
 
     residenc = st.sidebar.selectbox("What is the type of residence? ",
                                  ['Single family residence', 'Retirement community', 'Assisted living/boarding home/adult family home',
@@ -238,16 +243,16 @@ def users_app():
         residenc = 4.0
 
     fmlh = st.sidebar.selectbox("How many of your family members have dementia?",
-                                 [0, 1, 2, 3, 4, 5, 6])
+                                 [0, 1, 2, 3, 4, 5, 6], index=3)
     dem_idx = fmlh
 
-    gene = st.sidebar.selectbox("Input your gene type", ['ε2','ε3', 'ε4',  'Unknown'])
+    gene = st.sidebar.selectbox("Input your gene type", ['ε4', 'ε3','ε2', 'Unknown'])
     if gene == 'ε2':
-        gene = 0.0
+        gene = 2.0
     elif gene == 'ε3':
         gene = 1.0
     elif gene == 'ε4':
-        gene = 2.0
+        gene = 0.0
     else:
         gene = 1.0
 
@@ -526,7 +531,7 @@ def users_app():
         TOBAC100 = 1.0
 
 
-    PACKSPER = st.sidebar.number_input(label="Average number of packs/day smoked?", min_value=0.0, max_value=5.0, value=0.0,
+    PACKSPER = st.sidebar.number_input(label="Average number of packs/day smoked?", min_value=0.0, max_value=5.0, value=1.0,
                             step=0.5, format='%f')
     if PACKSPER < 0.5:
         PACKSPER = 1.0
@@ -563,17 +568,17 @@ def users_app():
 
     st.sidebar.markdown('# Clinical Dementia Rating')
 
-    memory = st.sidebar.number_input(label="What is your memory rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    memory = st.sidebar.number_input(label="What is your memory rating? (0-3)", min_value=0.0, max_value=3.0, value=1.5,
                                   step=0.5, format='%f')
-    commun = st.sidebar.number_input(label="What is your community affair rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    commun = st.sidebar.number_input(label="What is your community affair rating? (0-3)", min_value=0.0, max_value=3.0, value=1.0,
                                   step=0.5, format='%f')
-    homehobb = st.sidebar.number_input(label="What is your home & hobbies rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    homehobb = st.sidebar.number_input(label="What is your home & hobbies rating? (0-3)", min_value=0.0, max_value=3.0, value=1.0,
                                   step=0.5, format='%f')
-    judgment = st.sidebar.number_input(label="What is your judgement rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    judgment = st.sidebar.number_input(label="What is your judgement rating? (0-3)", min_value=0.0, max_value=3.0, value=1.0,
                                   step=0.5, format='%f')
-    orient = st.sidebar.number_input(label="What is your orientation rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    orient = st.sidebar.number_input(label="What is your orientation rating? (0-3)", min_value=0.0, max_value=3.0, value=1.0,
                                   step=0.5, format='%f')
-    perscare = st.sidebar.number_input(label="What is your personal care rating? (0-3)", min_value=0.0, max_value=3.0, value=0.0,
+    perscare = st.sidebar.number_input(label="What is your personal care rating? (0-3)", min_value=0.0, max_value=3.0, value=1.0,
                                   step=0.5, format='%f')
     cdr_clc = memory + commun + homehobb + judgment + orient + perscare
     #st.write('# The standard clinical dementia rating (CDR) is:', cdr_clc)
@@ -592,7 +597,7 @@ def users_app():
 
     user_sort = user_info.sort_values(by=[0], axis=1, ascending=False)
     user_sort['BMI'] = np.floor(BMI)
-    st.write('# Your input information is:', user_sort)
+    #st.write('# Your input information is:', user_sort)
 
     input_data = user_info_ori
     thd = 50.0
@@ -601,10 +606,12 @@ def users_app():
     bh_score = model.bh_score(input_data)
     feed_back, score_pred, diff = model.feed_back(input_data)
     age_out, age_axis, score_age = model.age_analysis()
+
+    risk_factors = model.risk_factor()
     '# The Evaluation Result is:'
 
-    st.write('Your brain health score is:', ('%3.1f') %bh_score)
-    st.write('The evaluation result is:', feed_back)
+    st.write('1) Your brain health score is:', ('%3.1f') %bh_score)
+    st.write('2) The evaluation result is:', feed_back)
 
     score_age1 = []
     for i in range(len(score_age)):
@@ -617,11 +624,21 @@ def users_app():
     #st.write('The age analysis:', age_axis, score_age)
 
     # BMI
-    output_bmi, score_bmi = model.risk_bmi()
-    output_edu, score_edu = model.risk_edu()
-    output_gds, score_gds = model.risk_gds()
+    #output_factors, score_factors = model.risk_factor()
+    #output_bmi, score_bmi = model.risk_bmi()
+    #output_edu, score_edu = model.risk_edu()
+    #output_gds, score_gds = model.risk_gds()
 
     #with st.echo(code_location='below'):  # Put the code below the plot if necessary
+    if type(age_out) == str:
+        st.write(age_out)
+    else:
+        st.write('3)', age_out[0], ('%3.0f') %age_out[1])
+
+    st.write('4) The top risk factors for you are:')
+    for i in range(len(risk_factors)):
+        st.write(risk_factors[i])
+
     import matplotlib.pyplot as plt
     font = {'family': 'normal', 'size': 14}
     plt.rc('font', **font)
@@ -633,38 +650,13 @@ def users_app():
     ax.set_ylabel("Brain health score")
 
     st.write(fig)
-    if type(age_out) == str:
-        st.write(age_out)
-    else:
-        st.write(age_out[0], ('%3.0f') %age_out[1])
+    st.write('(Normal: 80 – 100; Mild impairment: 60 – 80; Dementia: 0 – 60)')
+    st.write('(Please note that the brain health score is calculated using the standard clinical dementia rating.)')
 
-    fig1 = plt.figure()
-    ax = fig1.add_subplot(1, 1, 1)
-    ax.plot(age_axis, score_age1, color='black', label='Original')
-    ax.plot(age_axis, score_bmi, color='r', label='Weight')
-    ax.legend()
-    ax.locator_params(axis='x', nbins=9)
-    ax.set_xlabel("Age")
-    ax.set_ylabel("Brain health score")
 
-    st.write(fig1)
+    #if type(output_bmi) != str:
+        #st.write('If you take active preventions, you will have a lower potential dementia risk, at age:', ('%3.0f') %output_bmi[1])
 
-    if type(output_bmi) != str:
-        st.write('If you lose weight, you will have a lower potential dementia risk at age:', ('%3.0f') %output_bmi[1])
-
-    fig2 = plt.figure()
-    ax = fig2.add_subplot(1, 1, 1)
-    ax.plot(age_axis, score_age1, color='black', label='Original')
-    ax.plot(age_axis, score_edu, color='r', label='Education')
-    ax.legend()
-    ax.locator_params(axis='x', nbins=9)
-    ax.set_xlabel("Age")
-    ax.set_ylabel("Brain health score")
-
-    st.write(fig2)
-
-    if type(output_edu) != str:
-        st.write('If you have more exercise on your brain, you will have a lower potential dementia risk at age:', ('%3.0f') %output_edu[1])
 
 
 if __name__ == "__main__":

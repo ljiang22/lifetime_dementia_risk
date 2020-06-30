@@ -30,18 +30,18 @@ print(M, N)
 keys = data_input.keys()
 print(keys)
 
-# Diagnostic model
+# Calculate clinic dementia rating for label
 data_diag = data_input[['cdr', 'sumbox', 'mmse', 'commun', 'homehobb', 'judgment', 'memory', 'orient', 'perscare']]
 feature = data_input[['mmse', 'commun', 'homehobb', 'judgment', 'memory', 'orient', 'perscare']]
 label = data_input['sumbox']
 
 feature_st = data_diag.describe()
-print(feature_st)
+#print(feature_st)
 # Plot the results
 font = {'family': 'normal', 'size': 18}
 plt.rc('font', **font)
 
-data_diag.hist(grid=False, bins=6)
+#data_diag.hist(grid=False, bins=6)
 
 plt.figure(2)
 plt.scatter(data_input.cdr, data_input.sumbox)
@@ -77,14 +77,56 @@ bx.pie(data_pie, explode=explode, labels=labels, shadow=True, startangle=90)
 #bx.set_xlim(np.min(Udry) - 3, np.max(Udry) + 5)
 
 
-# Feedback model
-
+# Create date for prediciton model
 data_fd = data_input[['Subject', 'sumbox', 'Age', 'apoe', 'M/F', 'Hand', 'Education', 'Race', 'LIVSIT', 'INDEPEND', 'RESIDENC', 'MARISTAT', 'BMI', 'dem_idx', 'CVHATT', 'CVAFIB', 'CVANGIO', 'CVBYPASS', 'CVPACE', 'CVCHF', 'CVOTHR', 'CBSTROKE', 'CBTIA', 'CBOTHR', 'PD', 'PDOTHR', 'SEIZURES', 'TRAUMBRF', 'TRAUMEXT', 'TRAUMCHR', 'NCOTHR', 'HYPERTEN', 'HYPERCHO', 'DIABETES', 'B12DEF', 'THYROID', 'INCONTU', 'INCONTF', 'DEP2YRS', 'DEPOTHR', 'ALCOHOL', 'TOBAC30', 'TOBAC100', 'SMOKYRS', 'PACKSPER', 'ABUSOTHR', 'PSYCDIS', 'GDS']]
+data_fd1 = data_input[['Age', 'apoe', 'M/F', 'Hand', 'Education', 'Race', 'LIVSIT', 'INDEPEND', 'RESIDENC']]
+data_fd2 = data_input[['MARISTAT', 'BMI', 'dem_idx', 'CVHATT', 'CVAFIB', 'CVANGIO', 'CVBYPASS', 'CVPACE', 'CVCHF']]
+data_fd3 = data_input[['CBSTROKE', 'CBTIA', 'CBOTHR', 'PD', 'PDOTHR', 'SEIZURES', 'TRAUMBRF', 'TRAUMEXT', 'TRAUMCHR']]
+data_fd4 = data_input[['HYPERTEN', 'HYPERCHO', 'DIABETES', 'B12DEF', 'THYROID', 'INCONTU', 'INCONTF', 'DEP2YRS', 'DEPOTHR']]
+data_fd5 = data_input[['ALCOHOL', 'TOBAC30', 'TOBAC100', 'SMOKYRS', 'PACKSPER', 'ABUSOTHR', 'PSYCDIS', 'GDS']]
+
+# Effect of genes
+data_input_edit2 = data_input[(data_input.Age > 75.0) & (data_input.Age < 80) &
+                    (data_input.Race==1) & (data_input.apoe==1)]
+data_input_edit3 = data_input[ (data_input.Age > 75.0) & (data_input.Age < 80) &
+                    (data_input.Race==1) & (data_input.apoe==0)]
+
+
+attr = data_input_edit2['cdr']
+attr1 = data_input_edit3['cdr']
+attr_all = []
+
+attr_list = list(attr.values)
+attr_list1 = list(attr1.values)
+attr_all.append(attr_list)
+attr_all.append(attr_list1)
+print(attr_all)
+
+colors =['black', 'r']
+labels = ['APOE 3', 'APOE 4']
+f, bx = plt.subplots(nrows=1, ncols=1)
+bx.hist(attr_all, bins=10, normed=True, color=colors, histtype='bar', label=labels)
+#bx.hist(attr1, bins=22, density=True, color='r', histtype='bar', label='CDR < 0.5')
+bx.legend()
+#bx.set_ylim(ztop, zbot)
+#bx.invert_yaxis()
+#bx.grid()
+bx.locator_params(axis='x', nbins=7)
+bx.set_xlabel("CDR")
+bx.set_ylabel("Probability density")
+
+
 
 data_fd.to_csv('./raw data_edit/data_fd.csv')
 
-feature_st = feature.describe()
-print(feature_st)
+data_fd_st = data_fd.describe()
+print(data_fd_st)
+
+data_fd1.hist(grid=False, bins=6)
+data_fd2.hist(grid=False, bins=6)
+data_fd3.hist(grid=False, bins=6)
+data_fd4.hist(grid=False, bins=6)
+data_fd5.hist(grid=False, bins=6)
 
 plt.show()
 

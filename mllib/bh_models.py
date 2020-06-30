@@ -60,10 +60,9 @@ class bh_model(model_base):
         return self.score
 
     def feed_back(self, input):
-        svy_res1 = input[['CBTIA', 'ALCOHOL', 'CVAFIB', 'TRAUMBRF', 'TOBAC100', 'PSYCDIS', 'Hand', 'B12DEF', 'CVANGIO',
-                        'DEP2YRS', 'Race', 'DEPOTHR', 'THYROID', 'INCONTU', 'CVOTHR', 'PACKSPER', 'M/F', 'HYPERCHO',
-                    'apoe', 'LIVSIT', 'dem_idx', 'RESIDENC', 'MARISTAT', 'HYPERTEN', 'SMOKYRS', 'GDS', 'Education',
-                          'INDEPEND', 'BMI', 'Age']]  # The feature order is very important. Make sure the order is consistent with the model used in ths code
+        svy_res1 = input[['PSYCDIS', 'CVAFIB', 'B12DEF', 'CVOTHR', 'M/F', 'DEP2YRS', 'INCONTU', 'RESIDENC', 'DEPOTHR',
+                          'CVANGIO', 'Hand', 'HYPERTEN', 'INCONTF', 'HYPERCHO', 'MARISTAT', 'LIVSIT', 'apoe', 'dem_idx',
+                          'GDS', 'SMOKYRS', 'Education', 'BMI', 'INDEPEND', 'Age']]  # The feature order is very important. Make sure the order is consistent with the model used in ths code
         self.input_data = svy_res1
         self.data_pars = np.load('./raw data_edit/data_params.npy')  # 0: std, 1: mean, 2: min, 3: max for each variable
         #print(self.data_pars)
@@ -103,7 +102,8 @@ class bh_model(model_base):
         age_mean = self.data_pars[1, -1]
         #st.write(age_max, age_std, age_mean)
         score_age = []
-        #st.write(age0, age_max)
+        #st.write(self.input_nor[0, -2])
+
         if age0 < age_max:
             N = int((age_max - age0) / 2.0)
             for i in range(N):
@@ -118,8 +118,9 @@ class bh_model(model_base):
                 if score_pred < 0:
                     score_pred = 0
                 score_age.append(score_pred)
-                #st.write(score_pred)
+
         score_age = np.array(score_age)
+        #st.write(score_age[0], len(score_age), self.diff)
         score_pred = score_age[0]
         #print(score_age)
         age_dementia_all = []
@@ -170,7 +171,84 @@ class bh_model(model_base):
 
         return out_put, x_axis, score_age
 
-    def risk_bmi(self):
+    def risk_factor(self):
+        factors = []
+
+        indep = float(self.input_data['INDEPEND'])
+        if indep > 0:
+            factors.append('Independence')
+
+        bmi = float(self.input_data['BMI'])
+        bmi_max = self.data_pars[3, -3]  # Make sure use the the right indices
+        bmi_std = self.data_pars[0, -3]
+        bmi_mean = self.data_pars[1, -3]
+        #st.write(bmi, bmi_max, bmi_mean)
+        if bmi >= 25.0 or bmi < 18.5:
+            factors.append('Body mass index (BMI)')
+            bmi_tmp = 20.0
+            bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
+            self.input_nor[0, -3] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
+            #st.write(self.input_nor[0, -2])
+
+        edu = float(self.input_data['Education'])
+        edu_max = self.data_pars[3, -4]  # Make sure use the the right indices
+        edu_std = self.data_pars[0, -4]
+        edu_mean = self.data_pars[1, -4]
+        #st.write(edu, edu_max, edu_mean)
+        if edu <= 15.0:
+            factors.append('Education')
+            edu_tmp = 20.0
+            edu_tmp_nor = (edu_tmp - edu_mean) / edu_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -4] = edu_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+
+        gds = float(self.input_data['GDS'])
+        gds_max = self.data_pars[3, -6]  # Make sure use the the right indices
+        gds_std = self.data_pars[0, -6]
+        gds_mean = self.data_pars[1, -6]
+        if gds <= 7.0:
+            factors.append('GDS')
+            gds_tmp = 15.0
+            gds_tmp_nor = (gds_tmp - gds_mean) / gds_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -6] = gds_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+        smokyrs = float(self.input_data['SMOKYRS'])
+        smokyrs_max = self.data_pars[3, -5]  # Make sure use the the right indices
+        smokyrs_std = self.data_pars[0, -5]
+        smokyrs_mean = self.data_pars[1, -5]
+        #st.write(smokyrs, smokyrs_max, smokyrs_mean)
+        if smokyrs >= 20.0:
+            factors.append('Smoking')
+            smokyrs_tmp = 0.0
+            smokyrs_tmp_nor = (smokyrs_tmp - smokyrs_mean) / smokyrs_std
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, -5] = smokyrs_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+        hyperten = float(self.input_data['HYPERTEN'])
+        hyperten_max = self.data_pars[3, -13]  # Make sure use the the right indices
+        hyperten_std = self.data_pars[0, -13]
+        hyperten_mean = self.data_pars[1, -13]
+        #st.write(hyperten, hyperten_max, hyperten_mean)
+        if hyperten >= 1.0:
+            factors.append('Hypertension')
+            hyperten_tmp = 0.0
+            hyperten_tmp_nor = (hyperten_tmp - hyperten_mean) / hyperten_std
+            self.input_nor[0, -13] = hyperten_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+        """out_put, x_axis, score_age = self.age_analysis()
+
+        score_age1 = []
+        for i in range(len(score_age)):
+            score_tmp = float(score_age[i])
+            # st.write(i, score_tmp)
+            score_age1.append(score_tmp)
+        score_age1 = np.asarray(score_age1)"""
+
+        return factors
+
+    """def risk_bmi(self):
         bmi = float(self.input_data['BMI'])
         bmi_max = self.data_pars[3, -2]  # Make sure use the the right indices
         bmi_std = self.data_pars[0, -2]
@@ -179,7 +257,6 @@ class bh_model(model_base):
         if bmi >= 25.0:
             bmi_tmp = 20.0
             bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
-            #st.write(self.input_nor[0, -2])
             self.input_nor[0, -2] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
             #st.write(self.input_nor[0, -2])
             out_put, x_axis, score_age = self.age_analysis()
@@ -238,7 +315,7 @@ class bh_model(model_base):
             score_age1.append(score_tmp)
         score_age1 = np.asarray(score_age1)
 
-        return out_put, score_age1
+        return out_put, score_age1"""
 
 
 

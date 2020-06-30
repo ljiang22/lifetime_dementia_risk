@@ -151,6 +151,9 @@ for i in range(M):
 
 
     # Treate 'living as married" as 'married'
+    if data_all.MARISTAT[i] == 1:
+        data_all.MARISTAT[i] = 0.0
+
     if data_all.MARISTAT[i] == 6:
         data_all.MARISTAT[i] = 1.0
 
@@ -160,8 +163,7 @@ for i in range(M):
     if data_all.MARISTAT[i] == 8:
         data_all.MARISTAT[i] = 2.0
 
-    if data_all.MARISTAT[i] == 1:
-        data_all.MARISTAT[i] = 0.0
+
 
     if data_all.TOBAC30[i] > 1:
         data_all.TOBAC30[i] = 1

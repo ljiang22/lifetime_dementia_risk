@@ -27,7 +27,10 @@ pd.options.mode.chained_assignment = None
 input_file = './raw data_edit/data_fd_age.csv'    # The well name of an input file
 data_input_ori = pd.read_csv(input_file)
 data_input_ori = data_input_ori.drop(columns=['Unnamed: 0.1', 'Subject'])
-print(data_input_ori.head())
+data_input_edit = pd.DataFrame(data_input_ori, columns = ['sumbox', 'PSYCDIS', 'CVAFIB', 'CVANGIO', 'B12DEF', 'DEPOTHR', 'INCONTU', 'INCONTF', 'DEP2YRS',
+                                'M/F', 'HYPERCHO', 'CVOTHR', 'Hand', 'HYPERTEN', 'MARISTAT', 'RESIDENC', 'LIVSIT', 'dem_idx',
+                                'apoe', 'SMOKYRS', 'Education', 'GDS', 'BMI', 'Age', 'INDEPEND'])
+print(data_input_edit.head())
 
 #training_method ='SVR'
 #training_method ='MLP'
@@ -35,95 +38,56 @@ training_method ='RF'
 opt_flag = 0
 NT = 2
 
-keys = data_input_ori.keys()
-print(keys)
-
-var = 0.0   # Remove features with low variance. 0.8 means remove all features that are either one or zero (on or off) in more than 80% of the samples
-sel = VarianceThreshold(threshold=var)
-data_edit = sel.fit_transform(data_input_ori)
-indices = sel.get_support(indices=True)
-print(indices)
-print(keys[indices])
-print(data_input_ori.shape, data_edit.shape, type(data_edit))
-
-print(indices)
-keys1 = keys[indices]
-keys1 = keys1[2:]
+keys1 = data_input_edit.keys()
+keys1 = keys1[1:]
 print(keys1)
+
 
 #print(data_edit[0:50])
 
-data_input = data_edit
+data_input = data_input_edit.values
 print(data_input.shape, type(data_input))
 #print(max(data_input[:, 1]))
 
 # Normalization
-data_mean = np.mean(data_input[:, 1])
-data_std = np.std(data_input[:, 1])
+data_mean = np.mean(data_input[:, 0])
+data_std = np.std(data_input[:, 0])
 print(data_mean, data_std)
 
-
-
 data_nor = np.transpose(normalize(data_input))
-data_par = params_clc(data_input)
+data_par = params_clc(data_input[:, 1:])
 print(data_par.shape)
-data_par = data_par[:, 2:]
-
-#print(data_par.shape, data_par)
 
 print('data_nor shape is', data_nor.shape)
 
-
-features = data_nor[:, 2:]
-label_norm = data_nor[:, 1]
+features = data_nor[:, 1:]
+label_norm = data_nor[:, 0]
 print(features.shape, label_norm.shape)
 #print(data_nor[0:10, :])
 
-
-N1 = 46
-sltk = SelectKBest(f_regression, k=N1)  #
-fv, pv = f_regression(features, label_norm)
-features_new = sltk.fit_transform(features, label_norm)
-indices2 = sltk.get_support(indices=True)
-keys2 = keys1[indices2]
-print(keys2)
-# 'Race', Atrial fibrillation (CVAFIB), 'DIABETES', Thyroid disease (THYROID), 100 lifetime cigarettes (TOBAC100), 'PACKSPER'
-
-print(features_new.shape)
-indices3 = np.argsort(pv)
-print('keys3 without removing feature', keys1[indices3])
-indices3 = indices3[0:N1]
-#pv = sorted(pv)
-print(len(pv), pv)
-print(indices3)
-keys3 = keys1[indices3]
-print('keys3 is', keys3)
-features_new = features[:, indices3]
-data_par = data_par[:, indices3]
-x_axis = np.linspace(1, len(pv), len(pv))
-pv = sorted(pv)
-
 # L1-based feature selection
-N2 = 30
 from sklearn.feature_selection import SelectFromModel
-rf_estimator = RandomForestRegressor(bootstrap=True, max_samples=3000, max_features='auto', min_samples_split=2,
-                                     n_estimators=100, verbose=0, random_state=42, n_jobs=6)
-rf_fit = rf_estimator.fit(features_new, label_norm)
+rf_estimator = RandomForestRegressor(bootstrap=True, max_samples=7000, max_features='auto', min_samples_split=2,
+                                     n_estimators=120, verbose=0, random_state=42, n_jobs=6)
+rf_fit = rf_estimator.fit(features, label_norm)
 feature_imp = rf_fit.feature_importances_
 print(sorted(feature_imp))
 indices4 = np.argsort(feature_imp)
-keys4 = keys3[indices4]
-print('keys4 is', keys4)
-indices4 = indices4[(N1-N2):]
-keys4 = keys3[indices4]
-print('The new keys4 is', keys4)
-features_new = features_new[:, indices4]
+print(indices4)
+keys2 = keys1[indices4]
+print('keys24 is', keys2, keys1[23])
+
+features_new = features[:, indices4]
 data_par = data_par[:, indices4]
+
+
+
 #model = SelectFromModel(rf_fit, threshold=0.0000001, prefit=True, max_features=N2)
 #features_new = model.transform(features_new)
 print(features_new.shape)
 
 np.save('./raw data_edit/data_params', data_par)
+
 
 from sklearn.model_selection import train_test_split
 X_train0, X_test, y_train0, y_test = train_test_split(features_new, label_norm, test_size=0.15, random_state=27)
@@ -132,7 +96,6 @@ print(X_train.shape, X_val.shape, X_test.shape, y_train.shape, y_val.shape, y_te
 train_real = unnormalize(y_train, data_mean, data_std)
 val_real = unnormalize(y_val, data_mean, data_std)
 test_real = unnormalize(y_test, data_mean, data_std)
-
 
 if training_method == 'MLP':
     # hyper-parameters
@@ -251,7 +214,7 @@ if training_method == 'RF':
     'bootstrap': True, 'max_features': 'auto', 'max_samples': 1000, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 600
     Test set accuracy: 0.58"""
 
-    rf_estimator = RandomForestRegressor(bootstrap=True, max_samples=2000, max_features='auto', min_samples_split=2, n_estimators=600, verbose=0, random_state=42, n_jobs=6)
+    rf_estimator = RandomForestRegressor(bootstrap=True, max_samples=7000, max_features='auto', min_samples_split=2, n_estimators=120, verbose=0, random_state=42, n_jobs=6)
     train_est = rf_estimator.fit(X_train, y_train)
     train_pred_nor = train_est.predict(X_train)
     val_pred_nor = train_est.predict(X_val)

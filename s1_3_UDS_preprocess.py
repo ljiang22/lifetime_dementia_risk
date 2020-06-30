@@ -25,9 +25,7 @@ print(M, N)
 idx = data_input['Subject']
 
 for i in range(M):
-    #print(data_input.LIVSIT[i])
     if np.isnan(data_input.TOBAC30[i]):
-        #print(data_input.TOBAC30[i])
         data_input.TOBAC30[i] = 0
 
     if np.isnan(data_input.SMOKYRS[i]):
@@ -49,17 +47,6 @@ for i in range(M):
         data_input.PACKSPER[i] = 1.0
     else:
         data_input.PACKSPER[i] = data_input.PACKSPER[i]
-
-    #print(i, data_input.TOBAC30[i], data_input.TOBAC100[i], data_input.SMOKYRS[i], data_input.PACKSPER[i])
-
-#data_input.fillna(0.0)
-#mask_null = pd.isnull(data_input)
-#df = data_input[pd.isnull(data_input)]
-#print(df)
-#print(mask_null)
-#data_input.loc[~mask_null] = 0.0
-#for idx, row in data_input.iterrows():
-#print(data_input.irow[0])
 
 data_keys = data_input.keys()
 print(data_keys[0])
@@ -104,13 +91,13 @@ for col in data_keys_tmp:
 data_input.to_csv('./raw data_edit/UDS_A5_edit.csv')
 
 
-input_file = './raw data/UDS_B6.csv'    # The well name of an input file
+input_file = './raw data/UDS_B6.csv'
 data_input_ori = pd.read_csv(input_file)
 
 data_keys = data_input_ori.keys()
 print(data_keys)
 
-data_input = data_input_ori[['UDS_B6BEVGDSDATA ID', 'Subject', 'GDS']] # 'QUITSMOK',
+data_input = data_input_ori[['UDS_B6BEVGDSDATA ID', 'Subject', 'GDS']]
 M, N = data_input.shape
 print(M, N)
 
