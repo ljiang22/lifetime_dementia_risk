@@ -41,7 +41,7 @@ data_input_ori = data_input_ori.drop(columns=['Subject'])
 keys = data_input_ori.keys()
 print(keys)
 
-var = 0.0   # Remove features with low variance. 0.8 means remove all features that are either one or zero (on or off) in more than 80% of the samples
+var = 0.10   # Remove features with low variance. 0.8 means remove all features that are either one or zero (on or off) in more than 80% of the samples
 sel = VarianceThreshold(threshold=var)
 data_edit = sel.fit_transform(data_input_ori)
 indices = sel.get_support(indices=True)
@@ -50,6 +50,7 @@ for i in range(len(keys)):
     if i not in indices:
         keys0.append(keys[i])
 print('The features removed due to low variance', keys0)
+
 
 print(indices)
 keys1 = keys[indices]
@@ -76,7 +77,7 @@ features = data_nor[:, 2:]
 label_norm = data_nor[:, 1]
 print(features.shape, label_norm.shape)
 
-N1 = 45
+N1 = 24
 sltk = SelectKBest(f_regression, k=N1)  #
 fv, pv = f_regression(features, label_norm)
 features_new = sltk.fit_transform(features, label_norm)
@@ -88,18 +89,19 @@ print(keys2)
 print(features_new.shape)
 indices3 = np.argsort(pv)
 print('keys3 without removing feature', keys1[indices3])
-indices3 = indices3[0:N1]
+indices3c = indices3[0:N1]
 #pv = sorted(pv)
 print(len(pv), pv)
-print(indices3)
-keys3 = keys1[indices3]
+print(indices3c)
+keys3 = keys1[indices3c]
 print('keys3 is', keys3)
-features_new = features[:, indices3]
+print('Features removed due to the high p-value', keys1[indices3[N1:]])
+features_new = features[:, indices3c]
 x_axis = np.linspace(1, len(pv), len(pv))
 features_new = features_new[:, 0:]
 pv = sorted(pv)
 
-font = {'family': 'normal', 'size': 18}
+font = {'family': 'normal', 'size': 16}
 plt.rc('font', **font)
 plt.figure(1)
 plt.scatter(x_axis, pv, color='black')
@@ -139,8 +141,17 @@ print(sorted(feature_imp))
 indices4 = np.argsort(feature_imp)
 keys4 = keys3[indices4]
 print('keys4 is', keys4)
+keys4 = ['Psychiatric disorders', 'Atrial fibrillation', 'Angioplasty', 'B12 deficiency', 'Depression (others)', 'Incontinence (urinary)', 'Incontinence (bowel)', 'Depression', 'Gender', 'Hypercholesterolemia', 'CVOTHR',
+         'Hand', 'Hypertension', 'Marriage state', 'Residence type', 'Living situation', 'Family history', 'APOE', 'Smoking years', 'Education',
+         'GDS', 'BMI', 'Age', 'Independence']
 
-sdasds
+plt.figure(2)
+plt.title('Feature Importances')
+plt.barh(range(len(indices4)), sorted(feature_imp), color='b', align='center')
+plt.yticks(range(len(indices4)), [keys4[i] for i in range(len(indices4))])
+plt.xlabel('Relative Importance')
+plt.show()
+
 #features_new = features[:, indices3]
 model = SelectFromModel(rf_fit, threshold=0.0000001, prefit=True, max_features=N2)
 features_new = model.transform(features_new)

@@ -9,7 +9,7 @@ set_option('precision', 3)
 #set_option("display.max_rows", 10)
 pd.options.mode.chained_assignment = None
 #names = ['Depth', 'CALI', 'GR', 'RD', 'RS', 'NPHI', 'PHIE', 'PEF', 'VSH', 'DT', 'RHOB', 'DTS']
-input_file = 'ADRC_0529.csv'    # The well name of an input file
+input_file = './raw data/ADRC.csv'    # The well name of an input file
 data_input = pd.read_csv(input_file)
 
 data_keys = data_input.keys()
@@ -83,11 +83,18 @@ data_input_edit = data_input[(data_input.cdr >= 0.5) & (data_input.Age > 75.0) &
 data_input_edit1 = data_input[(data_input.cdr < 0.5) & (data_input.Age > 75.0) & (data_input.Age < 80) &
                     (data_input.Race=='Caucasian') & (data_input.BMI > 25.0) & (data_input.BMI < 35.0)]
 #data_input_edit = data_input[(data_input.ageAtEntry > 65) & (data_input.ageAtEntry < 97) & (data_input.cdr>=0.0) & (data_input.Subject == 'OAS30076')]
+data_input_edit2 = data_input[(data_input.Age > 75.0) & (data_input.Age < 80) &
+                    (data_input.Race=='Caucasian') & (data_input.BMI > 25.0) & (data_input.BMI < 35.0) & (data_input.apoe==33)]
+data_input_edit3 = data_input[ (data_input.Age > 75.0) & (data_input.Age < 80) &
+                    (data_input.Race=='Caucasian') & (data_input.BMI > 25.0) & (data_input.BMI < 35.0) & (data_input.apoe==34)]
+
 print('input data edit', data_input_edit)
 #plt.figure(1)
 
-attr = data_input_edit['apoe']
-attr1 = data_input_edit1['apoe']
+#attr = data_input_edit['apoe']
+#attr1 = data_input_edit1['apoe']
+attr = data_input_edit2['cdr']
+attr1 = data_input_edit3['cdr']
 attr_all = []
 
 print(len(attr1), len(data_input_edit1))
@@ -129,5 +136,19 @@ bx.locator_params(axis='x', nbins=7)
 bx.set_xlabel("Apoe")
 bx.set_ylabel("Probability density (%)")
 #bx.set_xlim(np.min(Udry) - 3, np.max(Udry) + 5)
+
+colors =['black', 'r']
+labels = ['apoe = 33', 'apoe=34']
+f, bx = plt.subplots(nrows=1, ncols=1)
+bx.hist(attr_all, bins=4, normed=True, color=colors, histtype='bar', label=labels)
+#bx.hist(attr1, bins=22, density=True, color='r', histtype='bar', label='CDR < 0.5')
+bx.legend()
+#bx.set_ylim(ztop, zbot)
+#bx.invert_yaxis()
+#bx.grid()
+bx.locator_params(axis='x', nbins=7)
+bx.set_xlabel("CDR")
+bx.set_ylabel("Probability density")
+
 
 plt.show()

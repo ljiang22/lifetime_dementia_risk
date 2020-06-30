@@ -10,7 +10,7 @@ set_option('precision', 3)
 pd.options.mode.chained_assignment = None
 
 
-input_file = './raw data/UDS_A1.csv'    # The well name of an input file
+input_file = './raw data/UDS_A1.csv'    # The file name of an input file
 data_input_ori = pd.read_csv(input_file)
 
 data_keys = data_input_ori.keys()
@@ -29,6 +29,8 @@ idx = data_input['Subject']
 # 5 = Other
 # 9 = Unknown
 hwr = []
+
+# Preprocessing missing value
 for i in range(M-1):
     tmp1 = idx[i]
     tmp2 = idx[i+1]
@@ -51,8 +53,8 @@ for i in range(M-1):
 data_input.to_csv('./raw data_edit/UDS_A1_edit.csv')
 
 
-
-input_file = './raw data/UDS_A3.csv'    # The well name of an input file
+# Feature engineering on family history
+input_file = './raw data/UDS_A3.csv'    # The file name of an input file
 data_input_ori = pd.read_csv(input_file)
 
 data_keys = data_input_ori.keys()
@@ -66,9 +68,6 @@ print(data_keys[120:200])
 print(data_keys[200:260])
 print(data_keys[260:320])
 print(data_keys[320:])
-
-#for j in range(len(data_keys)):
-    #print(data_keys[j])
 
 data_input = data_input_ori[['UDS_A3SBFMHSTDATA ID', 'Subject', 'MOMDEM',  'DADDEM', 'SIB1DEM', 'SIB2DEM', 'SIB3DEM', 'SIB4DEM',  'SIB5DEM', 'SIB6DEM',
         'SIB7DEM', 'SIB8DEM', 'SIB9DEM', 'SIB10DEM', 'SIB11DEM', 'SIB12DEM']]
