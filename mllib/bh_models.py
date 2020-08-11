@@ -60,25 +60,22 @@ class bh_model(model_base):
         return self.score
 
     def feed_back(self, input):
-        svy_res1 = input[['PSYCDIS', 'CVAFIB', 'B12DEF', 'CVOTHR', 'M/F', 'DEP2YRS', 'INCONTU', 'RESIDENC', 'DEPOTHR',
-                          'CVANGIO', 'Hand', 'HYPERTEN', 'INCONTF', 'HYPERCHO', 'MARISTAT', 'LIVSIT', 'apoe', 'dem_idx',
-                          'GDS', 'SMOKYRS', 'Education', 'BMI', 'INDEPEND', 'Age']]  # The feature order is very important. Make sure the order is consistent with the model used in ths code
+        svy_res1 = input[['Age', 'BMI', 'Education', 'GDS', 'LIVSIT', 'INCONTU', 'apoe', 'RESIDENC', 'INCONTF', 'SMOKYRS',
+                          'B12DEF', 'DEP2YRS', 'dem_idx', 'M/F', 'MARISTAT', 'PACKSPER', 'HYPERTEN', 'HYPERCHO', 'CVOTHR',
+                          'DEPOTHR', 'CVANGIO', 'Hand', 'PSYCDIS']]  # The feature order is very important. Make sure the order is consistent with the model used in ths code
+
         self.input_data = svy_res1
-        self.data_pars = np.load('./raw data_edit/data_params.npy')  # 0: std, 1: mean, 2: min, 3: max for each variable
-        #print(self.data_pars)
 
         # load the model from disk
-        filename = './final models/RF_finalized_age_model.sav'
+        filename = './final models/RF_finalized_model_aug.sav'
         self.model = pickle.load(open(filename, 'rb'))
         svy_res2 = np.asarray(svy_res1.values)
+        #st.write(svy_res2.shape)
 
-        self.input_nor = self.res_nor(svy_res2)
-        self.input_nor = np.reshape(self.input_nor, (1, len(self.input_nor)))
+        self.input_nor = svy_res2
+        self.input_nor = np.reshape(self.input_nor, (1, np.size(self.input_nor)))
         #print(svy_res2.shape)
         y_pred = self.model.predict(self.input_nor)
-        self.data_mean = 6.855  # Make sure use the right data mean and std for y_pred
-        self.data_std = 5.724
-        y_pred = y_pred * self.data_std + self.data_mean
         score_pred = 100 - (y_pred / self.sumbox_max) * 100
         self.diff = score_pred - self.score
         diff_pred = abs(score_pred - self.score) / self.score * 100
@@ -87,7 +84,7 @@ class bh_model(model_base):
         if score_pred >= 80:
             out_put = 'You have a good brain health so far'
         elif score_pred < 80 and score_pred >= 60:
-            out_put = 'Your brain health is in avarage. You need to take some actions to maintain or improve your brain health'
+            out_put = 'Your brain health is in avarage. You need to take some actions to improve your brain health'
         elif score_pred >= 30 and score_pred < 60:
             out_put = 'Your brain health is in a bad condition, and please go to see a doctor as soon as possible'
         else:
@@ -97,9 +94,8 @@ class bh_model(model_base):
 
     def age_analysis(self):
         age0 = float(self.input_data['Age'])
-        age_max = self.data_pars[3, -1]  # Make sure use the the right indices
-        age_std = self.data_pars[0, -1]
-        age_mean = self.data_pars[1, -1]
+        age_max = 110  # Make sure use the the right indices
+
         #st.write(age_max, age_std, age_mean)
         score_age = []
         #st.write(self.input_nor[0, -2])
@@ -108,12 +104,12 @@ class bh_model(model_base):
             N = int((age_max - age0) / 2.0)
             for i in range(N):
                 age_tmp = age0 + 2.0 * i
-                age_tmp_nor = (age_tmp - age_mean) / age_std
-                self.input_nor[0, -1] = age_tmp_nor  # Make sure use the right indices. The order matters most!!
+                age_tmp_nor = age_tmp
+                self.input_nor[0, 0] = age_tmp_nor  # Make sure use the right indices. The order matters most!!
                 #print(self.input_nor)
                 score_tmp = self.model.predict(self.input_nor)
                 #st.write(age_tmp_nor, score_tmp)
-                y_pred = score_tmp * self.data_std + self.data_mean
+                y_pred = score_tmp
                 score_pred = 100 - (y_pred / self.sumbox_max) * 100 - self.diff
                 if score_pred < 0:
                     score_pred = 0
@@ -174,68 +170,56 @@ class bh_model(model_base):
     def risk_factor(self):
         factors = []
 
-        indep = float(self.input_data['INDEPEND'])
-        if indep > 0:
-            factors.append('Independence')
-
         bmi = float(self.input_data['BMI'])
-        bmi_max = self.data_pars[3, -3]  # Make sure use the the right indices
-        bmi_std = self.data_pars[0, -3]
-        bmi_mean = self.data_pars[1, -3]
         #st.write(bmi, bmi_max, bmi_mean)
-        if bmi >= 25.0 or bmi < 18.5:
-            factors.append('Body mass index (BMI)')
+        if bmi >= 25.0:
+            factors.append('Overweight')
             bmi_tmp = 20.0
-            bmi_tmp_nor = (bmi_tmp - bmi_mean) / bmi_std
-            self.input_nor[0, -3] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
+            bmi_tmp_nor = bmi_tmp
+            self.input_nor[0, 1] = bmi_tmp_nor  # Make sure use the right indices. The order matters most!!
             #st.write(self.input_nor[0, -2])
-
-        edu = float(self.input_data['Education'])
-        edu_max = self.data_pars[3, -4]  # Make sure use the the right indices
-        edu_std = self.data_pars[0, -4]
-        edu_mean = self.data_pars[1, -4]
-        #st.write(edu, edu_max, edu_mean)
-        if edu <= 15.0:
-            factors.append('Education')
-            edu_tmp = 20.0
-            edu_tmp_nor = (edu_tmp - edu_mean) / edu_std
-            #st.write(self.input_nor[0, -2])
-            self.input_nor[0, -4] = edu_tmp_nor  # Make sure use the right indices. The order matters most!!
-
 
         gds = float(self.input_data['GDS'])
-        gds_max = self.data_pars[3, -6]  # Make sure use the the right indices
-        gds_std = self.data_pars[0, -6]
-        gds_mean = self.data_pars[1, -6]
         if gds <= 7.0:
-            factors.append('GDS')
+            factors.append('Depression')
             gds_tmp = 15.0
-            gds_tmp_nor = (gds_tmp - gds_mean) / gds_std
+            gds_tmp_nor = gds_tmp
             #st.write(self.input_nor[0, -2])
-            self.input_nor[0, -6] = gds_tmp_nor  # Make sure use the right indices. The order matters most!!
+            self.input_nor[0, 3] = gds_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+        edu = float(self.input_data['Education'])
+        #st.write(edu, edu_max, edu_mean)
+        if edu <= 15.0:
+            #factors.append('Education')
+            edu_tmp = 20.0
+            edu_tmp_nor = edu_tmp
+            #st.write(self.input_nor[0, -2])
+            self.input_nor[0, 2] = edu_tmp_nor  # Make sure use the right indices. The order matters most!!
+
 
         smokyrs = float(self.input_data['SMOKYRS'])
-        smokyrs_max = self.data_pars[3, -5]  # Make sure use the the right indices
-        smokyrs_std = self.data_pars[0, -5]
-        smokyrs_mean = self.data_pars[1, -5]
-        #st.write(smokyrs, smokyrs_max, smokyrs_mean)
         if smokyrs >= 20.0:
             factors.append('Smoking')
             smokyrs_tmp = 0.0
-            smokyrs_tmp_nor = (smokyrs_tmp - smokyrs_mean) / smokyrs_std
+            smokyrs_tmp_nor = smokyrs_tmp
             #st.write(self.input_nor[0, -2])
-            self.input_nor[0, -5] = smokyrs_tmp_nor  # Make sure use the right indices. The order matters most!!
+            self.input_nor[0, 9] = smokyrs_tmp_nor  # Make sure use the right indices. The order matters most!!
+
+
+
+        #st.write(hyperten, hyperten_max, hyperten_mean)
+
+        gene = float(self.input_data['apoe'])
+        if gene == 0.0:
+            factors.append('Gene')
 
         hyperten = float(self.input_data['HYPERTEN'])
-        hyperten_max = self.data_pars[3, -13]  # Make sure use the the right indices
-        hyperten_std = self.data_pars[0, -13]
-        hyperten_mean = self.data_pars[1, -13]
-        #st.write(hyperten, hyperten_max, hyperten_mean)
         if hyperten >= 1.0:
             factors.append('Hypertension')
             hyperten_tmp = 0.0
-            hyperten_tmp_nor = (hyperten_tmp - hyperten_mean) / hyperten_std
-            self.input_nor[0, -13] = hyperten_tmp_nor  # Make sure use the right indices. The order matters most!!
+            hyperten_tmp_nor = hyperten_tmp
+            self.input_nor[0, 16] = hyperten_tmp_nor  # Make sure use the right indices. The order matters most!!
+
 
         """out_put, x_axis, score_age = self.age_analysis()
 
