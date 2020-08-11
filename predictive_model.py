@@ -1,18 +1,6 @@
-import numpy as np
+# Training the machine learning model and building the predictive model
+
 import pandas as pd
-import matplotlib.pyplot as plt
-from pandas import set_option
-from mllib.preprocess import normalize
-from mllib.preprocess import unnormalize
-from mllib.networks import evaluate
-from mllib.networks import MLP_train_opt
-from mllib.networks import MLP_plot
-from mllib.networks import MLP_REG_v1
-from mllib.networks import MLPR_v0
-from sklearn.svm import SVR
-from sklearn.feature_selection import VarianceThreshold
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import f_regression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import RFECV
@@ -21,8 +9,6 @@ from sklearn.model_selection import GridSearchCV
 import seaborn as sns
 import sklearn
 from sklearn.metrics import SCORERS
-
-
 from mllib.utils import pca_analysis
 from mllib.utils import data_split
 from mllib.utils import evaluate
