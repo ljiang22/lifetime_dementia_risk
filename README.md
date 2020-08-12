@@ -1,4 +1,4 @@
-# Submission for Coding Challenge of Insight Data Engineering - Lian Jiang, 2020
+# Prediction of lifetime dementia risk - Lian Jiang, 2020
 
 ## Table of Contents
 1. [Introduction](README.md#introduction)
@@ -9,51 +9,35 @@
 1. [Questions?](README.md#questions?)
 
 ## Introduction
-The goal of this work is to finish the coding task provided by Insight data engineering team. The problem that needs to be solved is to calculate the total number of times vehicles, equipment, passengers and pedestrians cross the U.S.-Canadian and U.S.-Mexican borders each month and the running monthly average of total number of crossings for that type of crossing and border. 
+The goal of this work is to predict the lifetime dementia risk for people. In this project, I used people's demographics, family and healthy history, genetic and behavioral assessment data to build a predictive model using random forest machine learning technique, which not just can help users predict their lifetime dementia risk, but also help them assess the top risk factors for this disease.
 
 ## Input dataset
-The dataset used in this task is border crossing entry data collected from the bureau of transportation statistics (see more detail using the link: https://data.transportation.gov/Research-and-Statistics/Border-Crossing-Entry-Data/keg4-3bc2). 
+The data I used is OASIS-3, collected by Washington university over 15 years. OASIS-3 is the latest release in the Open Access Series of Imaging Studies (OASIS) that aimed at making neuroimaging datasets freely available to the scientific community. OASIS-3 is a longitudinal neuroimaging, clinical, cognitive, and biomarker dataset for normal aging and Alzheimer’s Disease. (See more detail using the link: https://www.oasis-brains.org/). 
 
-The input file used in this work is `Border_Crossing_Entry_Data.csv`, residing in the top-most `input` directory of the repository. The file contains data of the form:
-
-```
-Port Name,State,Port Code,Border,Date,Measure,Value,Location
-Derby Line,Vermont,209,US-Canada Border,03/01/2019 12:00:00 AM,Truck Containers Full,6483,POINT (-72.09944 45.005)
-Norton,Vermont,211,US-Canada Border,03/01/2019 12:00:00 AM,Trains,19,POINT (-71.79528000000002 45.01)
-Calexico,California,2503,US-Mexico Border,03/01/2019 12:00:00 AM,Pedestrians,346158,POINT (-115.49806000000001 32.67889)
-Hidalgo,Texas,2305,US-Mexico Border,02/01/2019 12:00:00 AM,Pedestrians,156891,POINT (-98.26278 26.1)
-Frontier,Washington,3020,US-Canada Border,02/01/2019 12:00:00 AM,Truck Containers Empty,1319,POINT (-117.78134000000001 48.910160000000005)
-Presidio,Texas,2403,US-Mexico Border,02/01/2019 12:00:00 AM,Pedestrians,15272,POINT (-104.37167 29.56056)
-Eagle Pass,Texas,2303,US-Mexico Border,01/01/2019 12:00:00 AM,Pedestrians,56810,POINT (-100.49917 28.70889)
-```
-
-The explanation for the fields used in this task is given as follows:
-* `Border`: Designates what border was crossed
-* `Date`: Timestamp indicating month and year of crossing
-* `Measure`: Indicates means, or type, of crossing being measured (e.g., vehicle, equipment, passenger or pedestrian)
-* `Value`: Number of crossings
+The input files used in this work are different csv files, residing in the top-most `raw data` directory of the repository. 
 
 ## Methods
-The procedure I use to calculate the total number of crossings of each type of measure, that crossed the border that month and the running monthly average of total crossings are:
-1) Find all the dates recorded in the dataset;
-2) Remove the duplicative dates and sort them from oldest to latest;
-3) Repeat the same steps above on measure and border;
-4) Loop each record in the dataset for each date, measure, and border;
-5) Sum the number of crossings for all the records in which the date, measure, and borer match that in one loop;
-6) Loop each of the total number of crossings calculated in step 5) for each date, measure, and border;
-7) Calculate the average value for all the total number of crossings with the date earlier than the date in that specific loop and with the measure and border match in that loop;
-8) Set the average value equals to 0 if there was no record with the date earlier. 
+The procedure I used to predict the lifetime dementia risk for users are as follows:
+1) Preprocess the data, including processing the missing and abnormal values, converting the categorial data to numerical numbers, and merge and match the data from different sources, and etc. 
+2) Feature selection using correlation heatmap, variance analysis, and univariate linear regression test.
+3) PCA analysis;
+4) Data augmentation test;
+5) Design machine learning pipeline including data normalization, data splitting, model selection, hyper-parameters tuning;
+6) model evaluation and result analysis;
+7) Application design and deployment.
+
 
 ## System requirements
 * Both Linux and Windows are supported.
 * 64-bit Python 3.7 installation.
-* The code is written using only the default python data structures.
+* Packages required: Pandas, Numpy, Matplotlib, Sklearn, Seaborn, Streamlit, and Pickle.
 
 ## Run instruction
-Copy the input dataset to the `input` folder with the format described in `Input dataset` section. Edit the `run.sh` file if you have different input file name and want to set different output file name. The example used in my work is as follows: 
-`python3.7 ./src/border_analytics.py ./input/Border_Crossing_Entry_Data.csv ./output/report.csv`. After finish the editing, run the script by `./run.sh`, then the code will finish the calculation and write the result to the output file. 
-
-One can run the test with command `insight_testsuite~$ ./run_tests.sh` from within the `insight_testsuite` folder. There are two tests in the `insight_testsuite/tests` folder. Both of them had passed the test on my code.
+1) Run UDS_preprocess_1.py and UDS_preprocess_2.py to preprocess the data;
+2) Run data_wrangling.py to merge the data from different tables and do some preliminary analysis on the data;
+3) Run exploratory_data_analysis.py to perform the tasks below: build correlation heat map, remove features with low variance, and remove the features that have a low chance to have an effect on the dependent variable.
+4) Run predictive_model.py to train the machine learning models and build the predictive model;
+5) Run dementia_risk_predictor.py to build the application of predicting the lifetime dementia risk for users.
 
 ## Questions?
 For any questions, concerns, and comments, please contact Lian Jiang at jiang2015leon@gmail.com
