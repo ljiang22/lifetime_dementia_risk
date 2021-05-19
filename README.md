@@ -23,7 +23,7 @@ The procedure I used to predict the lifetime dementia risk for users are as foll
 3) PCA analysis;
 4) Data augmentation test;
 5) Design machine learning pipeline including data normalization, data splitting, model selection, and hyper-parameters tuning;
-6) model evaluation and result analysis;
+6) Model evaluation and result analysis;
 7) Application design and deployment.
 
 
