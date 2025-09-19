@@ -25,7 +25,7 @@ The steps I used to predict the lifetime dementia risk for users are as follows:
 5)  Feature engineering and selection.
 6)  Data augmentation using numerical simulation.
 7)  Model building, including data normalization, data splitting, model selection, machine learning architecture design, and hyper-parameters tuning.
-8)  Model evaluation and result analysis.
+8)  Model evaluation and result analysis.    
 9)  Develop frontend application.
 10) Model and application deployment.
 
