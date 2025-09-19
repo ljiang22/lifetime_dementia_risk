@@ -17,14 +17,17 @@ The data I used is OASIS-3, collected by Washington university over 15 years. OA
 The input files used in this work are different csv files, residing in the top-most `raw data` directory of the repository. 
 
 ## Methods
-The procedure I used to predict the lifetime dementia risk for users are as follows:
-1) Preprocess the data, including processing the missing and abnormal values, converting the categorial data to numerical numbers, and merge and match the data from different sources, and etc. 
-2) Feature selection using correlation heatmap, variance analysis, and univariate linear regression test.
-3) PCA analysis;
-4) Data augmentation test;
-5) Design machine learning pipeline including data normalization, data splitting, model selection, and hyper-parameters tuning;
-6) Model evaluation and result analysis;
-7) Application design and deployment.
+The steps I used to predict the lifetime dementia risk for users are as follows:
+1)  Define the problem, including understanding the business/context, formulating a clear problem statement, defining the input and outpupt, set constrait and success metrics, evaluate feasibility.
+2)  Data collection, including defining data needs, identifying data sources, choosing collection methods, ensuring data quality, handling legal & ethical consideration, storing & organizing the data, dcoumening the process.
+3)  Data preprocessing, including processing the missing and abnormal values, converting the categorial data to numerical numbers, and merge and match the data from different sources, and etc. 
+4)  Exploratory Data Analysis (EDA), including studying further on the context, univriate analysis, bivariate analysis, multivariate analysis using correlation heatmap, variance analysis, PCA analysis, target variable analysis.
+5)  Feature engineering and selection.
+6)  Data augmentation using numerical simulation.
+7)  Model building, including data normalization, data splitting, model selection, machine learning architecture design, and hyper-parameters tuning.
+8)  Model evaluation and result analysis.
+9)  Develop frontend application.
+10) Model and application deployment.
 
 
 ## System requirements
