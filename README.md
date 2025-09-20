@@ -18,7 +18,7 @@ The input files used in this work are different csv files, residing in the top-m
 
 ## Methods
 The steps I used to predict the lifetime dementia risk for users are as follows:
-1)  Define the problem, including understanding the business/context, formulating a clear problem statement, defining the input and outpupt, set constrait and success metrics, evaluate feasibility.
+1)  Define the problem, including understanding the business/context, formulating a clear problem statement, defining the input and outpupt, set constriant and success metrics, evaluate feasibility.
 2)  Data collection, including defining data needs, identifying data sources, choosing collection methods, ensuring data quality, handling legal & ethical consideration, storing & organizing the data, dcoumening the process.
 3)  Data preprocessing, including processing the missing and abnormal values, converting the categorial data to numerical numbers, and merge and match the data from different sources, and etc. 
 4)  Exploratory Data Analysis (EDA), including studying further on the context, univriate analysis, bivariate analysis, multivariate analysis using correlation heatmap, variance analysis, PCA analysis, target variable analysis.
